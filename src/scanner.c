@@ -641,6 +641,8 @@ static bool scn_drs_doc_end(Scanner *scanner, TSLexer *lexer) {
     return false;
 }
 
+
+// Here
 static bool scn_dqt_str_cnt(Scanner *scanner, TSLexer *lexer, TSSymbol result_symbol) {
     if (!is_nb_double_char(lexer->lookahead)) {
         return false;
@@ -648,12 +650,14 @@ static bool scn_dqt_str_cnt(Scanner *scanner, TSLexer *lexer, TSSymbol result_sy
     if (scanner->cur_col == 0 && scn_drs_doc_end(scanner, lexer)) {
         mrk_end(scanner, lexer);
         RET_SYM(scanner->cur_chr == '-' ? S_DRS_END : S_DOC_END);
-    } else {
+    } else adv(scanner, lexer);
+
+    if (lexer->lookahead != '"') {
         adv(scanner, lexer);
+        while( is_nb_double_char(lexer->lookahead) ) adv(scanner, lexer);
+        mrk_end(scanner, lexer);
     }
-    while (is_nb_double_char(lexer->lookahead)) {
-        adv(scanner, lexer);
-    }
+    while (is_nb_double_char(lexer->lookahead)) adv(scanner, lexer);
     mrk_end(scanner, lexer);
     RET_SYM(result_symbol);
 }
@@ -665,12 +669,14 @@ static bool scn_sqt_str_cnt(Scanner *scanner, TSLexer *lexer, TSSymbol result_sy
     if (scanner->cur_col == 0 && scn_drs_doc_end(scanner, lexer)) {
         mrk_end(scanner, lexer);
         RET_SYM(scanner->cur_chr == '-' ? S_DRS_END : S_DOC_END);
-    } else {
+    } else adv(scanner, lexer);
+
+    if( lexer->lookahead != '\'' ) {
         adv(scanner, lexer);
+        while( is_nb_single_char(lexer->lookahead) ) adv(scanner, lexer);
+        mrk_end(scanner, lexer);
     }
-    while (is_nb_single_char(lexer->lookahead)) {
-        adv(scanner, lexer);
-    }
+    while (is_nb_single_char(lexer->lookahead)) adv(scanner, lexer);
     mrk_end(scanner, lexer);
     RET_SYM(result_symbol);
 }
